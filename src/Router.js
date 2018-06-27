@@ -12,13 +12,13 @@ return(
     key="AlbumList" 
     component={AlbumList}
     navBar={Navbar}
-    title="Resturants"
+    title="FoodSpaze"
     />
     <Scene 
     key="ResturantDetails" 
     component={ResturantDetails}
     navBar={Navbar}
-    title="Resturant Details"
+    title="FoodSpaze"
     />
     </Scene> 
     </Router>

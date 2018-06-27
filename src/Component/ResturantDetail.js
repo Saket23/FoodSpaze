@@ -1,181 +1,191 @@
 import React, { Component } from 'react'
-import { Animated, View, StyleSheet, Image, Dimensions, ScrollView,Text,SectionList } from 'react-native';
+import { Animated, View, StyleSheet, Image
+    ,ScrollView,Text,
+    SectionList,
+    TouchableOpacity,
+    FlatList,
+    Modal,
+    TouchableHighlight,
+    ImageBackground
+ } from 'react-native';
+import {verticalScale} from './Scaling';
+import Tag from './Tag';
+import { List, ListItem } from 'react-native-elements';
 
 import {connect} from 'react-redux';
-
-const deviceWidth = Dimensions.get('window').width
-const FIXED_BAR_WIDTH = 280
-const BAR_SPACE = 10
-
-
+import { ConfirmBooking } from './ConfirmBooking';
+import Icon from "react-native-vector-icons/Ionicons";
 
 class ResturantDetail extends Component{
     constructor(props){
         super(props);
         this.state={
-            images:[]
+           tagLevel:'All',
+           Food:[],
+           modalVisible: false,
+           address:''
         }
     }
-    numItems = 3
-    itemWidth = (FIXED_BAR_WIDTH / this.numItems) - ((this.numItems - 1) * BAR_SPACE)
-    animVal = new Animated.Value(0)
-
+    
     componentWillMount(){
-        console.log(this.props);
-           //console.log(this.props.apiData);
-          // var obj = this.props.apiData;
-           //console.log(obj);
-           /*obj.forEach(function(element) {
-               console.log(element);
-            if(element.id==this.props.id){
-                this.state.images.push(element.image_url);
-                this.state.images.push(element.image_url);
-                this.state.images.push(element.image_url);
-            }
-            console.log(this.state.images);
-          });*/
-                this.state.images.push(this.props.image);
-                this.state.images.push(this.props.image);
-                this.state.images.push(this.props.image);
-                console.log(this.state.images);
+        console.log([...this.props.data1.menu_list[0]["Veg"] || [], ...this.props.data1.menu_list[0]["nonVeg"] || []]);
+        this.setState({Food:this.props.data1.menu_list[0].Veg.concat(this.props.data1.menu_list[0].nonVeg) });
+    }
 
+    componentDidMount(){
+        let latlng = {lat: parseFloat(this.props.data1.location.latitude), lng: parseFloat(this.props.data1.location.longitude)};
+        fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${latlng.lat},${latlng.lng}&key=AIzaSyDRK7KfkXl5ImgeUw7jIydgcF9HgGjj0xk`)
+        .then((response) => response.json())
+        .then((responseJson) => {
+            console.log('ADDRESS GEOCODE is BACK!! => ' + JSON.stringify(responseJson.results[0].formatted_address));
+            this.setState({address:responseJson.results[0].formatted_address});
+})
+    }
+
+    setModalVisible(visible) {
+        this.setState({modalVisible: visible});
+      }
+    
+    onTagPress(label){
+        this.setState({tagLevel:label});
+        if(label=="VEG"){
+            this.setState({Food:this.props.data1.menu_list[0].Veg});
+        }
+        else if(label=="Non-VEG"){
+            this.setState({Food:this.props.data1.menu_list[0].nonVeg});
+        }
+        else if(label=="All"){
+            this.setState({Food:this.props.data1.menu_list[0].Veg.concat(this.props.data1.menu_list[0].nonVeg) });              
+        }
     }
   
     render() {
-      let imageArray = []
-      let barArray = []
-      this.state.images.forEach((image, i) => {
-        console.log(image, i)
-        const thisImage = (
-          <Image
-            key={`image${i}`}
-            source={{uri: image}}
-            style={{ width: deviceWidth }}
-          />
-        )
-        imageArray.push(thisImage)
-  
-        const scrollBarVal = this.animVal.interpolate({
-          inputRange: [deviceWidth * (i - 1), deviceWidth * (i + 1)],
-          outputRange: [-this.itemWidth, this.itemWidth],
-          extrapolate: 'clamp',
-        })
-  
-        const thisBar = (
-          <View
-            key={`bar${i}`}
-            style={[
-              styles.track,
-              {
-                width: this.itemWidth,
-                marginLeft: i === 0 ? 0 : BAR_SPACE,
-              },
-            ]}
-          >
-            <Animated.View
-  
-              style={[
-                styles.bar,
-                {
-                  width: this.itemWidth,
-                  transform: [
-                    { translateX: scrollBarVal },
-                  ],
-                },
-              ]}
-            />
-          </View>
-        )
-        barArray.push(thisBar)
-      })
-  
-      return (
-        <View
-          style={styles.container}
-          flex={1}
-        >
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            scrollEventThrottle={10}
-            pagingEnabled
-            onScroll={
-              Animated.event(
-                [{ nativeEvent: { contentOffset: { x: this.animVal } } }]
-              )
-            }
-          >
-  
-            {imageArray}
-  
-          </ScrollView>
-          <View
-            style={styles.barContainer}
-          >
-            {barArray}
-          </View>
-          <Text style={styles.textStyle}>{this.props.name1}</Text>
-          <SectionList
-          sections={[
-            {title: 'D', data: ['Devin']},
-            {title: 'J', data: ['Jackson', 'James', 'Jillian', 'Jimmy', 'Joel', 'John', 'Julie']},
-          ]}
-          renderItem={({item}) => <Text style={styles.item}>{item}</Text>}
-          renderSectionHeader={({section}) => <Text style={styles.sectionHeader}>{section.title}</Text>}
-          keyExtractor={(item, index) => index}
-        />
+        const tagActive= this.state.tagLevel;
+        return(
+            <View style={{flex:1}}>
+     <ScrollView style={{flex:1,backgroundColor:"#fff"}}>
+     
+        <ImageBackground source={{uri:this.props.data1.image_url}} style={styles.image1}>
+        <View style={{
+            flex:1,
+            justifyContent:'center',
+            alignItems:'center',
+            alignSelf:'stretch',
+            backgroundColor:'rgba(0,0,0,0.5)'
+        }}>
+        <Text style={[styles.name1,{backgroundColor:'transparent'}]}>{this.props.name1}</Text>
         </View>
-      )
+        </ImageBackground>
+        <View style={{flexDirection: "row",width:'80%',alignSelf:'center'}}>
+            <Icon name='ios-pin' color="black" size={20} />
+            <Text style={{color:'black'}}>{this.state.address}</Text>
+        </View>
+
+        <View
+        style={{
+          flexDirection: "row",
+          marginVertical: 10,
+          marginHorizontal: 10,
+          alignSelf:'center'
+        }}
+      >
+        <Tag
+          label="VEG"
+          active={tagActive === "VEG" ? true : false}
+          onChange={this.onTagPress.bind(this)}
+        />
+        <Tag
+          label="Non-VEG"
+          active={tagActive === "Non-VEG" ? true : false}
+          onChange={this.onTagPress.bind(this)}
+        />
+    
+        <Tag
+          label="All"
+          active={tagActive === "All" ? true : false}
+          onChange={this.onTagPress.bind(this)}
+        />
+      </View> 
+      <List containerStyle={{ borderTopWidth: 0, 
+        borderBottomWidth: 0,
+        alignSelf:'auto',
+        marginLeft:20,
+        marginRight:20 }}>
+      <FlatList
+        data={this.state.Food}
+        renderItem={({ item }) => (
+          <ListItem
+            title={item.dish_name}
+            subtitle={`Rs ${item.price}/-`}
+            hideChevron
+          />
+        )}
+        keyExtractor={item => item.dish_name}
+      />
+    </List>
+     </ScrollView>
+     <TouchableOpacity  style={styles.ButtonStyle} onPress={() => {
+        this.setModalVisible(true);
+      }}>
+     <Text style={styles.TextStyle}>
+     Book a Table
+     </Text>
+     </TouchableOpacity>
+
+     <Modal
+     animationType="slide"
+     transparent={false}
+     visible={this.state.modalVisible}
+     onRequestClose={() => {
+       alert('Modal has been closed.');
+     }}>
+     <ConfirmBooking
+     onClose={() =>
+       this.setState({
+        modalVisible: false
+       })
+     }
+   />
+   </Modal>
+     </View>
+        );
     }
   }
 
   const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor:'#ffffff'
+    image1:{
+        flex: 1,
+        height:200,
+        marginVertical: 20,
+        marginLeft: 25,
+        marginRight:25,
+        justifyContent:'center',
+        alignItems:'center'
     },
-    barContainer: {
-      position: 'absolute',
-      zIndex: 2,
-      top: 40,
-      flexDirection: 'row',
-    },
-    track: {
-      backgroundColor: '#ccc',
-      overflow: 'hidden',
-      height: 2,
-    },
-    bar: {
-      backgroundColor: '#5294d6',
-      height: 2,
-      position: 'absolute',
-      left: 0,
-      top: 0,
-    },
-    textStyle:{
-        color:'black',
-        marginTop:10,
-        marginBottom:10,
-        backgroundColor:'white',
-        fontWeight:"900",
-        fontSize:30
-    },
-    sectionHeader: {
-        paddingTop: 2,
-        paddingLeft: 10,
-        paddingRight: 10,
-        paddingBottom: 2,
-        fontSize: 14,
+    TextStyle:{
+        fontSize: 28,
+        textAlign: 'center',
+        margin: 5, 
+        color:'white',
         fontWeight: 'bold',
-        backgroundColor: 'rgba(247,247,247,1.0)',
+        textShadowColor: 'rgba(0,0,0,75)',
+        textShadowOffset: { width: 0, height: 1 },
+        textShadowRadius: 4,
+        paddingLeft:40,
+        paddingRight:40
       },
-      item: {
-        padding: 10,
-        fontSize: 18,
-        height: 44,
-      }
+      name1:{
+        fontSize:40,
+        color:'white',
+        alignSelf:'center',
+        fontWeight:'900'
+      },
+      ButtonStyle: {
+        backgroundColor: '#006DB7',
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: '#007aff'
+    }
   })
 
   const mapStateToProps = state =>{

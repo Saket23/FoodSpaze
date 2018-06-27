@@ -4,6 +4,7 @@ import Card from './Card';
 import CardSection from './CardSection';
 import Button from './Button';
 import {Actions} from 'react-native-router-flux';
+import Icon from "react-native-vector-icons/Ionicons";
 
 const AlbumDetail = (props) => {
 return (
@@ -16,7 +17,11 @@ return (
                 />
                 </View>
             <View style={styles.headerContentStyles}>
-           <Text> {props.data.name} </Text>
+           <Text style={{fontWeight:'900',color:'#000',fontSize:20}}> {props.data.name} </Text>
+           <View style={{flexDirection: "row",}}>
+           <Icon name='ios-pin' color="black" size={20} />
+           <Text style={{color:'black'}}> {(props.data.distance*100).toFixed(2)} kms </Text>
+           </View>
            </View> 
         </CardSection>
 
@@ -25,7 +30,7 @@ return (
         </CardSection>
         <CardSection>
             <Button onPress={() => {
-                Actions.ResturantDetails({id:props.data.id,image:props.data.image_url,latitude:props.data.location.latitude,longitude:props.data.location.longitude,name1:props.data.name});
+                Actions.ResturantDetails({data1:props.data,name1:props.data.name});
             }} >
                 Looks Interesting
                 </Button>
@@ -53,7 +58,7 @@ thumbnailContainerStyle:{
     marginRight: 10
 },
 imageStyle: {
-    height: 300,
+    height: 200,
     flex: 1,
     width: null
 }

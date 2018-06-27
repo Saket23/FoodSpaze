@@ -1,5 +1,5 @@
 import React,{ Component } from 'react';
-import { ScrollView } from 'react-native';
+import { ScrollView,ActivityIndicator } from 'react-native';
 import axios from 'axios';
 import AlbumDetail from './AlbumDetail';
 import {saveApi} from '../Actions';
@@ -13,11 +13,12 @@ this.state = {
     latitude: null,
     longitude: null,
     error: null,
+    result:''
  };
 }
 
     componentDidMount(){
-       axios.get('http://www.mocky.io/v2/5ac4842c2f00005600f5f9fb').then(response => this.setState({ resturants: response.data.restaurantList }));
+       axios.get('http://www.mocky.io/v2/5ac4842c2f00005600f5f9fb').then(response => this.setState({ resturants: response.data.restaurantList,result:1 }));
 
        navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -33,6 +34,7 @@ this.state = {
    
 
     renderAlbums() {
+        if(this.state.result){
         const x1=this.state.latitude;
         const y1=this.state.longitude;
         this.state.resturants.forEach((resturant) => {
@@ -53,7 +55,12 @@ this.state = {
         console.log(this.props.apidata);
        return array1.map(resturant => 
        <AlbumDetail key={resturant.id} data={resturant} />
-       );
+    );
+        }
+        else{
+            return <ActivityIndicator size="large" color="#006DB7" />
+        }
+       
     }
 
     render() {
