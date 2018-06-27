@@ -28,8 +28,10 @@ class ResturantDetail extends Component{
     }
     
     componentWillMount(){
+        if(this.props.data1.menu_list){
         console.log([...this.props.data1.menu_list[0]["Veg"] || [], ...this.props.data1.menu_list[0]["nonVeg"] || []]);
         this.setState({Food:this.props.data1.menu_list[0].Veg.concat(this.props.data1.menu_list[0].nonVeg) });
+        }
     }
 
     componentDidMount(){
@@ -48,6 +50,7 @@ class ResturantDetail extends Component{
     
     onTagPress(label){
         this.setState({tagLevel:label});
+        if(this.props.data1.menu_list){
         if(label=="VEG"){
             this.setState({Food:this.props.data1.menu_list[0].Veg});
         }
@@ -57,6 +60,7 @@ class ResturantDetail extends Component{
         else if(label=="All"){
             this.setState({Food:this.props.data1.menu_list[0].Veg.concat(this.props.data1.menu_list[0].nonVeg) });              
         }
+    }
     }
   
     render() {
@@ -80,7 +84,7 @@ class ResturantDetail extends Component{
             <Icon name='ios-pin' color="black" size={20} />
             <Text style={{color:'black'}}>{this.state.address}</Text>
         </View>
-
+        {(this.props.data1.menu_list)?(
         <View
         style={{
           flexDirection: "row",
@@ -106,6 +110,7 @@ class ResturantDetail extends Component{
           onChange={this.onTagPress.bind(this)}
         />
       </View> 
+    ):(<View></View>)}
       <List containerStyle={{ borderTopWidth: 0, 
         borderBottomWidth: 0,
         alignSelf:'auto',
